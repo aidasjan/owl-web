@@ -22,8 +22,11 @@ const Convert = () => {
   const handleSubmit = async () => {
     if (validate(formData) && formData.file) {
       setIsLoading(true)
-      await convert(formData.file, formData.format)
-      setIsLoading(false)
+      try {
+        await convert(formData.file, formData.format)
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 

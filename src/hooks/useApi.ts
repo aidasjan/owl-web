@@ -25,13 +25,21 @@ export const useApi = ({ apiUrl }: Props) => {
       method,
       headers,
       body: isFormData ? body : JSON.stringify(body)
-    })
+    }).catch(() => null)
+
+    if (!response) {
+      toast({
+        status: 'error',
+        title: 'Something went wrong'
+      })
+      return
+    }
 
     if (!response.ok) {
       if (response.status === 400) {
         const errorResult = await response.json().catch(() => null)
         if (errorResult) {
-          toast({ status: 'error', title: errorResult.error })
+          toast({ status: 'error', title: errorResult.error ?? 'Invalid request' })
         }
       } else if (response.status === 500) {
         toast({
@@ -48,6 +56,7 @@ export const useApi = ({ apiUrl }: Props) => {
       download(fileUrl, downloadableProps.filename)
       return true
     }
+
     const result = await response.json()
     return result
   }
