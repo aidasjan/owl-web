@@ -4,6 +4,15 @@ import { useSearchParams } from 'react-router-dom'
 import { useApi, useValidation } from 'hooks'
 import { Box, Button, Heading, Select } from '@chakra-ui/react'
 
+const FORMATS = [
+  { label: 'RDF', value: 'rdfxml', extension: 'rdf' },
+  { label: 'OWL', value: 'owlxml', extension: 'owx' },
+  { label: 'Turtle', value: 'turtle', extension: 'ttl' },
+  { label: 'Manchester', value: 'manchester', extension: 'omn' },
+  { label: 'FSS', value: 'fss', extension: 'ofn' },
+  { label: 'LaTeX', value: 'latex', extension: 'tex' }
+]
+
 const Convert = () => {
   const [searchParams] = useSearchParams()
   const { convert } = useApi({ apiUrl: searchParams.get('api') })
@@ -23,17 +32,17 @@ const Convert = () => {
     if (validate(formData) && formData.file) {
       setIsLoading(true)
       try {
-        await convert(formData.file, formData.format)
+        await convert(
+          formData.file,
+          formData.format,
+          FORMATS.find((format) => formData.format === format.value)
+            ?.extension ?? ''
+        )
       } finally {
         setIsLoading(false)
       }
     }
   }
-
-  const formats = [
-    { label: 'RDF', value: 'rdf' },
-    { label: 'OWL', value: 'owl' }
-  ]
 
   return (
     <Container maxW="900px">
@@ -58,7 +67,7 @@ const Convert = () => {
           setFormData({ ...formData, format: e.target.value })
         }}
       >
-        {formats.map((format) => (
+        {FORMATS.map((format) => (
           <option key={format.value} value={format.value}>
             {format.label}
           </option>

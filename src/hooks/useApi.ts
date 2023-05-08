@@ -61,12 +61,12 @@ export const useApi = ({ apiUrl }: Props) => {
     return result
   }
 
-  const convert = async (file: File, format: string) => {
+  const convert = async (file: File, format: string, extension: string) => {
     const formData = new FormData()
     formData.append('file', file)
     formData.append('format', format)
-    return await sendRequest('/api/convert', 'POST', formData, true, {
-      filename: `converted.${format}`
+    return await sendRequest('/api/v1/convert', 'POST', formData, true, {
+      filename: `converted.${extension}`
     })
   }
 
