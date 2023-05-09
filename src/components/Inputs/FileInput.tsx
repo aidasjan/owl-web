@@ -1,50 +1,55 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { Box, Flex, Button } from '@chakra-ui/react'
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024
+const MAX_FILE_SIZE = 1 * 1024 * 1024
 
 interface FileInputProps {
   id?: string
-  selectedFile: File | null
+  selectedFiles: File[]
   isInvalid?: boolean
-  setSelectedFile: (file: File | null) => void
+  isSingle?: boolean
+  setSelectedFiles: (file: File[]) => void
 }
 
 const FileInput = ({
   id,
-  selectedFile,
+  selectedFiles,
   isInvalid,
-  setSelectedFile
+  isSingle,
+  setSelectedFiles
 }: FileInputProps) => {
-  const handleFileSelect = useCallback(
-    (e) => {
-      e.preventDefault()
-      const files = e.dataTransfer ? e.dataTransfer.files : e.target.files
-      if (files.length > 0) {
-        const file = files[0]
-        if (file.size <= MAX_FILE_SIZE) {
-          setSelectedFile(file)
+  const handleFileSelect = (e) => {
+    e.preventDefault()
+    const files = e.dataTransfer ? e.dataTransfer.files : e.target.files
+    console.log(files)
+    if (files.length > 0) {
+      const file = files[0]
+      if (file.size <= MAX_FILE_SIZE) {
+        if (isSingle) {
+          setSelectedFiles([file])
+        } else {
+          setSelectedFiles([...selectedFiles, file])
         }
       }
-    },
-    [setSelectedFile]
-  )
+    }
+  }
 
-  const handleDragOver = useCallback((e) => {
+  const handleDragOver = (e) => {
     e.preventDefault()
-  }, [])
+  }
 
-  const handleDrop = useCallback(
-    (e) => {
-      e.preventDefault()
-      handleFileSelect(e)
-    },
-    [handleFileSelect]
-  )
+  const handleDrop = (e) => {
+    e.preventDefault()
+    handleFileSelect(e)
+  }
 
-  const handleRemove = useCallback(() => {
-    setSelectedFile(null)
-  }, [setSelectedFile])
+  const handleRemove = (file) => {
+    if (!selectedFiles) {
+      return
+    }
+    console.log(selectedFiles)
+    setSelectedFiles(selectedFiles.filter((f) => f.name !== file.name))
+  }
 
   return (
     <>
@@ -74,10 +79,14 @@ const FileInput = ({
           />
         </Flex>
         <Box fontSize="sm" mt={2}>
-          Max file size: 10 MB
+          Max file size: {MAX_FILE_SIZE / 1024 / 1024} MB
         </Box>
+        <Flex fontSize="sm" mt={2} justifyContent="center" gap={1}>
+          <Box>Supported file types:</Box>
+          <Box fontWeight="bold">rdf, owx, ttl, omn, ofn</Box>
+        </Flex>
       </Box>
-      {selectedFile && (
+      {selectedFiles?.map((file) => (
         <Flex
           mt={1}
           p={6}
@@ -85,23 +94,26 @@ const FileInput = ({
           justify="space-between"
           align="center"
           borderRadius="xl"
+          key={file.name}
         >
           <Box>
             <Box fontSize="sm">Selected File</Box>
-            <Box fontWeight="bold">{selectedFile.name}</Box>
+            <Box fontWeight="bold">{file.name}</Box>
           </Box>
           <Button
             p={0}
             colorScheme="red"
             variant="ghost"
             _hover={{ bg: 'transparent' }}
-            onClick={handleRemove}
+            onClick={() => {
+              handleRemove(file)
+            }}
           >
             <Box mr={3} className="fas fa-times fa-lg" color="red.500" />
             Remove
           </Button>
         </Flex>
-      )}
+      ))}
       {isInvalid && (
         <Box mt={1} color="red" fontSize="sm" fontWeight="bold">
           File is required

@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Container, FileInput, Loader } from 'components'
-import { useSearchParams } from 'react-router-dom'
 import { useApi, useValidation } from 'hooks'
 import { Box, Button, Heading, Select } from '@chakra-ui/react'
 
@@ -14,8 +13,7 @@ const FORMATS = [
 ]
 
 const Convert = () => {
-  const [searchParams] = useSearchParams()
-  const { convert } = useApi({ apiUrl: searchParams.get('api') })
+  const { convert } = useApi()
   const { invalidFields, validate } = useValidation({
     requiredFields: ['file', 'format']
   })
@@ -52,10 +50,11 @@ const Convert = () => {
         File
       </Box>
       <FileInput
-        selectedFile={formData.file}
-        setSelectedFile={(file) => {
-          setFormData({ ...formData, file })
+        selectedFiles={formData.file ? [formData.file] : []}
+        setSelectedFiles={(files) => {
+          setFormData({ ...formData, file: files[0] })
         }}
+        isSingle
         isInvalid={invalidFields.file}
       />
       <Box mt={6} mb={1}>
@@ -69,7 +68,7 @@ const Convert = () => {
       >
         {FORMATS.map((format) => (
           <option key={format.value} value={format.value}>
-            {format.label}
+            {format.label} (.{format.extension})
           </option>
         ))}
       </Select>

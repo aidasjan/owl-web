@@ -13,6 +13,25 @@ const SidebarContent = ({ onClose }: SidebarProps) => {
       title: 'Convert',
       icon: 'fas fa-exchange-alt',
       to: '/convert'
+    },
+    {
+      title: 'Merge',
+      icon: 'fas fa-object-group',
+      to: '/merge'
+    },
+    {
+      title: 'Analyze',
+      icon: 'fas fa-search',
+      children: [
+        {
+          title: 'Individuals',
+          to: '/analyze/individuals'
+        },
+        {
+          title: 'Declarations',
+          to: '/analyze/declarations'
+        }
+      ]
     }
   ]
 
@@ -36,9 +55,30 @@ const SidebarContent = ({ onClose }: SidebarProps) => {
       </Flex>
       {items.map((item) => (
         <>
-          <NavItem target={item.to} icon={item.icon} onClick={onClose}>
-            {item.title}
-          </NavItem>
+          {item.to && (
+            <NavItem target={item.to} icon={item.icon} onClick={onClose}>
+              {item.title}
+            </NavItem>
+          )}
+          {item.children && (
+            <>
+              <NavItem icon={item.icon} onClick={onClose}>
+                {item.title}
+              </NavItem>
+              <Box pl={6}>
+                {item.children.map((subitem) => (
+                  <NavItem
+                    key={subitem.title}
+                    target={subitem.to}
+                    icon="fas fa-chevron-right"
+                    onClick={onClose}
+                  >
+                    {subitem.title}
+                  </NavItem>
+                ))}
+              </Box>
+            </>
+          )}
         </>
       ))}
     </Box>

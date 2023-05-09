@@ -3,11 +3,7 @@ import { download } from 'utils/download'
 
 const BASE_URL = process.env.REACT_APP_API_URL ?? 'http://localhost:8080'
 
-interface Props {
-  apiUrl?: string | null
-}
-
-export const useApi = ({ apiUrl }: Props) => {
+export const useApi = () => {
   const toast = useToast()
 
   const sendRequest = async (
@@ -21,7 +17,7 @@ export const useApi = ({ apiUrl }: Props) => {
     if (!isFormData) {
       headers = { 'Content-Type': 'application/json' }
     }
-    const response = await fetch(`${apiUrl ?? BASE_URL}${path}`, {
+    const response = await fetch(`${BASE_URL}${path}`, {
       method,
       headers,
       body: isFormData ? body : JSON.stringify(body)
@@ -39,7 +35,10 @@ export const useApi = ({ apiUrl }: Props) => {
       if (response.status === 400) {
         const errorResult = await response.json().catch(() => null)
         if (errorResult) {
-          toast({ status: 'error', title: errorResult.error ?? 'Invalid request' })
+          toast({
+            status: 'error',
+            title: errorResult.error ?? 'Invalid request'
+          })
         }
       } else if (response.status === 500) {
         toast({
@@ -70,5 +69,33 @@ export const useApi = ({ apiUrl }: Props) => {
     })
   }
 
-  return { convert }
+  const merge = async (files: File[]) => {
+    const formData = new FormData()
+    files.reduce<FormData>((fd, file) => {
+      fd.append('files', file)
+      return fd
+    }, formData)
+    const extension = files[0].name.slice(files[0].name.lastIndexOf('.') + 1)
+    return await sendRequest('/api/v1/merge', 'POST', formData, true, {
+      filename: `merged.${extension}`
+    })
+  }
+
+  const getDeclarations = async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return await sendRequest('/api/v1/declarations', 'POST', formData, true, {
+      filename: 'declarations.txt'
+    })
+  }
+
+  const getIndividuals = async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return await sendRequest('/api/v1/individuals', 'POST', formData, true, {
+      filename: 'individuals.txt'
+    })
+  }
+
+  return { convert, merge, getDeclarations, getIndividuals }
 }
