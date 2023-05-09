@@ -32,6 +32,11 @@ const SidebarContent = ({ onClose }: SidebarProps) => {
           to: '/analyze/declarations'
         }
       ]
+    },
+    {
+      title: 'API',
+      icon: 'fas fa-code',
+      to: '/api'
     }
   ]
 

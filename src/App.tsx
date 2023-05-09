@@ -5,6 +5,7 @@ import { Sidebar } from 'components'
 import Convert from 'pages/Convert/Convert'
 import Merge from 'pages/Merge/Merge'
 import Analyze from 'pages/Analyze/Analyze'
+import Api from 'pages/Api/Api'
 
 const App = () => {
   return (
@@ -22,6 +23,7 @@ const App = () => {
             path="/analyze/declarations"
             element={<Analyze analysisType="declarations" />}
           />
+          <Route path="/api" element={<Api />} />
         </Routes>
       </Sidebar>
     </BrowserRouter>
